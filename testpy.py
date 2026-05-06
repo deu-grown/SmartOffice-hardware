@@ -26,15 +26,24 @@ while True:
             #print(f"Temp: {temp:.1f}°C, Humidity: {humi:.1f}%")
 
             # 전송할 데이터 딕셔너리 생성
-            payload = {
+            payload1 = {
                 "zoneId": 2,
                 "sensorType": "TEMPARATURE",
                 "deviceId": 1,
                 "value": round(temp, 2),
                 "unit": "C",
                 "timestamp": custom_timestamp
-                #"humidity": round(humi, 2)
             }
+
+            payload2 = {
+                "zoneId": 2,
+                "sensorType": "HUMIDITY",
+                "deviceId": 1,
+                "value": round(humi, 2),
+                "unit": "%",
+                "timestamp": custom_timestamp
+            }
+
 
             # HTTP Header 설정 (서버에게 우리가 JSON 데이터를 보낸다고 알려줌)
             headers = {
@@ -43,13 +52,14 @@ while True:
 
             try:
                 # 백엔드 서버로 POST 요청 보내기 (json=payload를 쓰면 자동으로 JSON 변환되어 전송됩니다)
-                response = requests.post(BACKEND_URL, json=payload, headers=headers, timeout=5)
+                response1 = requests.post(BACKEND_URL, json=payload1, headers=headers, timeout=1)
+                response2 = requests.post(BACKEND_URL, json=payload2, headers=headers, timeout=1)
                 
                 # 성공적으로 전송되었는지 확인 (HTTP 상태 코드 200번대 확인)
-                if response.status_code in [200, 201]:
+                if response1.status_code in [200, 201] and response2.status_code in [200, 201]:
                     print("Status: Data sent successfully!")
                 else:
-                    print(f"Status: Failed to send. Server responded with {response.status_code}")
+                    print(f"Status: Failed to send. Server responded with {response1.status_code} and humidity is {response2.status_code}")
             
             except requests.exceptions.RequestException as e:
                 # 서버가 꺼져있거나 네트워크 연결이 끊겼을 때 예외 처리
