@@ -1,0 +1,33 @@
+{
+  "_comment": "복사해서 config.json 으로 사용하세요. 시크릿(MQTT 비밀번호)은 파일이 아니라 환경변수 SMARTOFFICE_MQTT_PASS 로 주입. 운영(prod)은 SMARTOFFICE_ENV=prod 로 8883+TLS 전환.",
+
+  "mqtt": {
+    "host": "192.168.1.129",
+    "port": 1883,
+    "use_tls": false,
+    "client_id": "smartoffice-rpi"
+  },
+
+  "http": {
+    "api_base": "http://192.168.1.129:8080"
+  },
+
+  "peripherals": {
+    "_comment": "백엔드 시드 device 와 일치시킬 것. co2.device_id 는 V20__seed_rpi_devices.sql 의 devices_id(13) 와 반드시 일치.",
+    "temperature": {"zone_id": 5, "device_id": 3,  "pin": 4, "unit": "C"},
+    "humidity":    {"zone_id": 5, "device_id": 4,  "pin": 4, "unit": "%"},
+    "co2":         {"zone_id": 5, "device_id": 13, "port": "/dev/serial0", "unit": "ppm"},
+    "nfc":         {"zone_id": 2, "device_id": 1}
+  },
+
+  "actuators": {
+    "_comment": "solenoid_device_id 는 V20__seed_rpi_devices.sql 의 devices_id(14) 와 반드시 일치. LED/솔레노이드는 command_zone_id 의 command 토픽을 구독해 구동.",
+    "command_zone_id": 2,
+    "led_pin": 23,
+    "led_device_id": 21,
+    "solenoid_pin": 24,
+    "solenoid_device_id": 14
+  },
+
+  "dry_run": false
+}

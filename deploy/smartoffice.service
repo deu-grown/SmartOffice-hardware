@@ -1,0 +1,31 @@
+# SmartOffice 통합 데몬 systemd 유닛 (설계 템플릿)
+# 설치: 경로/User 를 실기에 맞게 조정 후
+#   sudo cp deploy/smartoffice.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now smartoffice
+# 로그:  journalctl -u smartoffice -f
+#
+# 주의: GPIO/시리얼 단일 소유 — 데몬 실행 중 tests/ 스크립트를 동시에 돌리지 말 것(GPIO busy).
+
+[Unit]
+Description=SmartOffice RPi unified daemon (sensors + NFC + actuators)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 실기 경로에 맞게 조정 (마운트 경로가 다를 수 있음)
+WorkingDirectory=/home/pi/rpi-mount
+ExecStart=/home/pi/rpi-mount/.venv/bin/python /home/pi/rpi-mount/main.py
+# 시크릿/환경(SMARTOFFICE_ENV, SMARTOFFICE_MQTT_PASS 등). 파일 없으면 무시(-)
+EnvironmentFile=-/home/pi/rpi-mount/smartoffice.env
+Restart=on-failure
+RestartSec=5
+# SIGTERM 으로 우리 핸들러가 정렬 종료(솔레노이드 off + GPIO cleanup)하도록
+KillSignal=SIGTERM
+TimeoutStopSec=15
+# GPIO/시리얼 접근 권한이 필요. root 가 아니라면 gpio·dialout 그룹 사용자로:
+# User=pi
+# SupplementaryGroups=gpio dialout
+
+[Install]
+WantedBy=multi-user.target
